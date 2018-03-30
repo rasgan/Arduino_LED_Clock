@@ -94,6 +94,36 @@ void showCharOnSegment(int16_t number, int16_t segment)
     }
 }
 
+/**
+* Show or hide dot
+*/
+void showDot(bool yes) {
+	if (yes == true) pixels.setPixelColor(31, redColor, greenColor, blueColor);
+	if (yes == false) pixels.setPixelColor(31, 0, 0, 0);
+}
+
+/**
+* Show or hide colon
+*/
+void showColon(bool yes) {
+	if (yes == true) {
+		pixels.setPixelColor(29, redColor, greenColor, blueColor);
+		pixels.setPixelColor(30, redColor, greenColor, blueColor);
+	}
+	if (yes == false) {
+		pixels.setPixelColor(29, 0, 0, 0);
+		pixels.setPixelColor(30, 0, 0, 0);
+	}
+}
+
+/**
+* Clear selected @segment (leave him blank)
+*/
+void clearSegment(int8_t segment)
+{
+	showCharOnSegment(10, segment);
+}
+
 
 void setup()
 {
