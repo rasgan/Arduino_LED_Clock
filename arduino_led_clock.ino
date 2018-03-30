@@ -51,13 +51,13 @@ int char4 = 8;
 
 // LED Strip object definition
 const int ledStripPin = 12; // pin in arduino
-const int ledsInStrip = 59; // leds in strip
+const int ledsInStrip = 62; // leds in strip
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(ledsInStrip, ledStripPin, NEO_GRB + NEO_KHZ800); // strip object
 
 // Strip actual color
 byte redColor = 200; // strip color red
-byte greenColor = 50; // strip color green
-byte blueColor = 120; // strip color blue
+byte greenColor = 10; // strip color green
+byte blueColor = 10; // strip color blue
 
 // help variable isBlinking
 boolean isBlinking = false;
@@ -105,10 +105,10 @@ void showCharOnSegment(int16_t number, int16_t segment)
         offset = 15;
         break;
     case 3:
-        offset = 31;
+        offset = 32;
         break;
     case 4:
-        offset = 45;
+        offset = 46;
         break;
     }
 
@@ -173,6 +173,7 @@ void testMode(int blinks) {
 		showCharOnSegment(8, 4);
 		showColon(1);
 		showDot(1);
+		showCelsius(1);
 		pixels.show();
 		delay(500);
 		clearSegment(1);
@@ -181,6 +182,7 @@ void testMode(int blinks) {
 		clearSegment(4);
 		showColon(0);
 		showDot(0);
+		showCelsius(0);
 		pixels.show();
 		delay(500);
 	}
@@ -257,6 +259,7 @@ int convertTimeToDipslay() {
 	showColon(true);
 	showDot(false);
 	showMinus(false);
+	showCelsius(false);
 	return time;
 }
 
@@ -272,11 +275,28 @@ int convertDateToDipslay() {
 	showColon(false);
 	showDot(true);
 	showMinus(false);
+	showCelsius(false);
 	return date;
 }
 
 //todo zrobiæ
-void showMinus(bool show) {}
+void showMinus(bool yes) {
+	if (yes == true) {
+		pixels.setPixelColor(0, redColor, greenColor, blueColor);
+	}
+	if (yes == false) {
+		pixels.setPixelColor(0, 0, 0, 0);
+	}
+}
+
+void showCelsius(bool yes) {
+	if (yes == true) {
+		pixels.setPixelColor(60, redColor, greenColor, blueColor);
+	}
+	if (yes == false) {
+		pixels.setPixelColor(60, 0, 0, 0);
+	}
+}
 
 //todo komentarz
 void setup()
@@ -287,6 +307,10 @@ void setup()
 	// ledStrip init
 	pixels.begin();
 	testMode(2);
+	showCelsius(false);
+	showColon(false);
+	showDot(false);
+	showMinus(false);
 
 	// Clock init
 	clock.begin();
@@ -385,6 +409,10 @@ void loop()
 	// days mode
 	case 4: {
 		display = days;
+		showCelsius(false);
+		showColon(false);
+		showDot(false);
+		showMinus(false);
 		break;
 	}
 
@@ -451,3 +479,8 @@ void loop()
 //todo wyczyœciæ kod
 //todo dodaæ kolorki dni od iloœci do 9999
 //todo guziki po przek¹tnej
+//TODO zapisywanie ustawieñ do pamiêci
+//todo 24h/12h widok
+//todo dodaæ opcjê ustawiania kolorów dla zegara
+//todo dodaæ opcjê ustawiania kolorów dla daty
+//todo dodaæ opcjê ustawiania kolorów dla temp
