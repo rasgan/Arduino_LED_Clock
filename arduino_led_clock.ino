@@ -19,18 +19,18 @@
 *
 * Mirror because we use >>
 */
-static const unsigned char font[] = {
-	0b11111100111111, //0
-	0b11000000110000, //1
-	0b11110011001111, //2
-	0b11110011111100, //3
-	0b11001111110000, //4
-	0b00111111111100, //5
-	0b00111111111111, //6
-	0b11110000110000, //7
-	0b11111111111111, //8
-	0b11111111111100, //9
-	0b00000000000000, //10 BLANK
+static const char font[] = {
+	0b1110111, //0
+	0b1000100, //1
+	0b1101011, //2
+	0b1101110, //3
+	0b1011100, //4
+	0b0111110, //5
+	0b0111111, //6
+	0b1100100, //7
+	0b1111111, //8
+	0b1111110, //9
+	0b0000000, //10 BLANK
 };
 
 // characters on segments
@@ -49,9 +49,12 @@ byte redColor = 200; // strip color red
 byte greenColor = 50; // strip color green
 byte blueColor = 120; // strip color blue
 
-					  // Time objects
+// Time objects
 DS3231 clock;
 RTCDateTime dateTime;
+
+// days from last accident
+int days;
 
 /**
  * Show @char from @font array on selected @segment with selected color in @redColor, @greenColor and @blueColor
@@ -70,10 +73,10 @@ void showCharOnSegment(int16_t number, int16_t segment)
         offset = 15;
         break;
     case 3:
-        offset = 32;
+        offset = 31;
         break;
     case 4:
-        offset = 46;
+        offset = 45;
         break;
     }
 
@@ -84,13 +87,16 @@ void showCharOnSegment(int16_t number, int16_t segment)
     {
         if (line & 0b1)
         {
-            pixels.setPixelColor(j + offset, redColor, greenColor, blueColor);
+            pixels.setPixelColor(j*2 + offset, redColor, greenColor, blueColor);
+			pixels.setPixelColor(j*2 + offset + 1, redColor, greenColor, blueColor);
         }
         else
         {
-            pixels.setPixelColor(j + offset, 0, 0, 0);
+            pixels.setPixelColor(j*2 + offset, 0, 0, 0);
+			pixels.setPixelColor(j*2 + offset + 1, 0, 0, 0);
         }
         line >>= 1;
+		
     }
 }
 
@@ -193,7 +199,41 @@ void convertNumberToChars(int number, bool showZero) {
 void setup()
 {
 
-  /* add setup code here */
+	Serial.begin(9600);
+
+	// ledStrip init
+	pixels.begin();
+	//testMode();
+
+	// Clock init
+	//clock.begin();
+	//clock.setDateTime(__DATE__, __TIME__);
+
+	// set alarm to every 23:59:00
+	//todo ustawienie na godzinê, a testy wy³¹czyæ
+	//clock.setAlarm2(0, 23, 59, DS3231_MATCH_M);
+	//clock.setAlarm1(0, 0, 0, 10, DS3231_MATCH_M); // ustawiona ka¿da 10 sekunda minuty do testów
+
+	//todo odczyt z pamiêci ram zegara przy starcie
+	//days = 0;
+
+	/*showCharOnSegment(1, 1);
+	showCharOnSegment(2, 2);
+	showCharOnSegment(3, 3);
+	showCharOnSegment(4, 4);
+	pixels.show();
+	delay(5000);
+	showCharOnSegment(5, 1);
+	showCharOnSegment(6, 2);
+	showCharOnSegment(7, 3);
+	showCharOnSegment(8, 4);
+	pixels.show();
+	delay(5000);
+	showCharOnSegment(9, 1);
+	showCharOnSegment(0, 2);
+	showCharOnSegment(1, 3);
+	showCharOnSegment(2, 4);
+	pixels.show();*/
 
 }
 
