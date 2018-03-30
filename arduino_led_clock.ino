@@ -1,6 +1,7 @@
 #include <Adafruit_NeoPixel.h>
 #include <Wire.h>
 #include <DS3231.h>
+#include <Bounce2.h>
 
 /*
 * Define font array
@@ -32,6 +33,15 @@ static const char font[] = {
 	0b1111110, //9
 	0b0000000, //10 BLANK
 };
+
+// Buttons declaration
+const int plusButtonPin = 2;
+const int minusButtonPin = 3;
+const int modeButtonPin = 4;
+
+Bounce bouncePlusButton = Bounce();
+Bounce bounceMinusButton = Bounce();
+Bounce bounceModeButton = Bounce();
 
 // characters on segments
 int char1 = 8;
