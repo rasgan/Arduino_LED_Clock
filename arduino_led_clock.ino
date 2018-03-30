@@ -44,7 +44,7 @@ const int ledStripPin = 12; // pin in arduino
 const int ledsInStrip = 59; // leds in strip
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(ledsInStrip, ledStripPin, NEO_GRB + NEO_KHZ800); // strip object
 
-																							  // Strip actual color
+// Strip actual color
 byte redColor = 200; // strip color red
 byte greenColor = 50; // strip color green
 byte blueColor = 120; // strip color blue
@@ -223,15 +223,38 @@ void showDisplay(int number, bool showZero) {
 	showCharOnSegment(char4, 4);
 }
 
-//todo komentarz
+/*
+ * convert time and convert it to dipslay
+*/
 int convertTimeToDipslay() {
 	int time = 0;
 	actualTime = clock.dateFormat("i", dateTime);
 	time = actualTime.toInt();
 	actualTime = clock.dateFormat("H", dateTime);
 	time = time + actualTime.toInt()*100;
+	showColon(true);
+	showDot(false);
+	showMinus(false);
 	return time;
 }
+
+/*
+* Convert date and convert it to dipslay
+*/
+int convertDateToDipslay() {
+	int date = 0;
+	actualDate = clock.dateFormat("m", dateTime);
+	date = actualDate.toInt();
+	actualDate = clock.dateFormat("d", dateTime);
+	date = date + actualDate.toInt() * 100;
+	showColon(false);
+	showDot(true);
+	showMinus(false);
+	return date;
+}
+
+//todo zrobiæ
+void showMinus(bool show) {}
 
 //todo komentarz
 void setup()
@@ -256,18 +279,17 @@ void setup()
 	//todo odczyt z pamiêci ram zegara przy starcie
 	days = 0;
 	//todo odczyt z pamiêci
-	actualMode = 1;
+	actualMode = 2;
 
 }
 
 //todo komentarz
 void loop()
 {
-
-	
-
 	// read actual date and time
 	dateTime = clock.getDateTime();
+	clock.forceConversion();
+
 	Serial.println(clock.dateFormat("d-m-Y H:i:s - l", dateTime));
 
 	// check if 23:59 then increment days
@@ -280,20 +302,40 @@ void loop()
 	switch (actualMode)
 	{
 		// clock mode
-	case 1:
+	case 1: {
+		// get actual time
 		actualTime = clock.dateFormat("H:i", dateTime);
+		// check is time or mode changed from last display
 		if ((actualTime != prevTime) || (actualMode != prevMode)) {
 			prevTime = actualTime;
 			prevMode = actualMode;
 			display = convertTimeToDipslay();
-			showColon(true);
+		}
+		break; 
+	}
+	
+	// date mode
+	case 2: {
+		// get actual time
+		actualDate = clock.dateFormat("m-d", dateTime);
+		// check is date or mode changed from last display
+		if ((actualDate != prevDate) || (actualMode != prevMode)) {
+			prevDate = actualDate;
+			prevMode = actualMode;
+			display = convertDateToDipslay();
 		}
 		break;
-		// days mode
-	case 2:
+	}
+	
+	// cdays mode
+	case 4: {
 		display = days;
 		break;
+	}
+
+	// dafault mode
 	default:
+		actualMode = 1;
 		break;
 	}
 
@@ -301,10 +343,6 @@ void loop()
 	showDisplay(display, true);
 	pixels.show();
 	delay(1000);
-
-	/*Serial.println(display);
-	Serial.println(actualMode);
-*/
 
 	
 
