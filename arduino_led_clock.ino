@@ -131,10 +131,10 @@ void clearSegment(int8_t segment)
 }
 
 /**
-* Test function - blink 5 time all pixels
+* Test function - blink @blinks time all pixels
 */
-void testMode() {
-	for (int i = 0; i<5; i++) {
+void testMode(int blinks) {
+	for (int i = 0; i<blinks; i++) {
 		showCharOnSegment(8, 1);
 		showCharOnSegment(8, 2);
 		showCharOnSegment(8, 3);
@@ -203,43 +203,54 @@ void setup()
 
 	// ledStrip init
 	pixels.begin();
-	//testMode();
+	testMode(2);
 
 	// Clock init
-	//clock.begin();
-	//clock.setDateTime(__DATE__, __TIME__);
+	clock.begin();
+	clock.setDateTime(__DATE__, __TIME__);
 
 	// set alarm to every 23:59:00
+	clock.setAlarm2(0, 23, 59, DS3231_MATCH_M);
+	
 	//todo ustawienie na godzinê, a testy wy³¹czyæ
-	//clock.setAlarm2(0, 23, 59, DS3231_MATCH_M);
-	//clock.setAlarm1(0, 0, 0, 10, DS3231_MATCH_M); // ustawiona ka¿da 10 sekunda minuty do testów
+	//clock.setAlarm1(0, 0, 0, 10, DS3231_MATCH_S); // ustawiona ka¿da 10 sekunda minuty do testów
 
 	//todo odczyt z pamiêci ram zegara przy starcie
-	//days = 0;
-
-	/*showCharOnSegment(1, 1);
-	showCharOnSegment(2, 2);
-	showCharOnSegment(3, 3);
-	showCharOnSegment(4, 4);
-	pixels.show();
-	delay(5000);
-	showCharOnSegment(5, 1);
-	showCharOnSegment(6, 2);
-	showCharOnSegment(7, 3);
-	showCharOnSegment(8, 4);
-	pixels.show();
-	delay(5000);
-	showCharOnSegment(9, 1);
-	showCharOnSegment(0, 2);
-	showCharOnSegment(1, 3);
-	showCharOnSegment(2, 4);
-	pixels.show();*/
+	days = 0;
 
 }
 
 void loop()
 {
 
-  /* add main program code here */
+	// read actual date and time
+	dateTime = clock.getDateTime();
+	Serial.println(clock.dateFormat("d-m-Y H:i:s - l", dateTime));
+
+	//todo testy, reszta na alarmie 2
+	if (clock.isAlarm2()) {
+		days++;
+		convertNumberToChars(days, true);
+		clock.clearAlarm2();
+		//todo zapis dni do pamiêci
+	}
+
+	Serial.println(days);
+	
+
+	convertNumberToChars(days, false);
+
+	showCharOnSegment(char1, 1);
+	showCharOnSegment(char2, 2);
+	showCharOnSegment(char3, 3);
+	showCharOnSegment(char4, 4);
+
+	// show sended chars
+	pixels.show();
+	delay(1000);
+
+	//todo kasowanie zegara
+	//todo ustawienie zegara na ileœ dni
+
 
 }
