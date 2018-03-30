@@ -82,8 +82,10 @@ int actualMode = 1;
 // time help variables
 String prevTime = "";
 String prevDate = "";
+String prevTemp = "";
 String actualTime = "";
 String actualDate = "";
+String actualTemp = "";
 
 // number showed on display
 int display;
@@ -151,6 +153,30 @@ void showColon(bool yes) {
 	if (yes == false) {
 		pixels.setPixelColor(29, 0, 0, 0);
 		pixels.setPixelColor(30, 0, 0, 0);
+	}
+}
+
+/**
+* Show or hide minus
+*/
+void showMinus(bool yes) {
+	if (yes == true) {
+		pixels.setPixelColor(0, redColor, greenColor, blueColor);
+	}
+	if (yes == false) {
+		pixels.setPixelColor(0, 0, 0, 0);
+	}
+}
+
+/**
+* Show or hide celsius
+*/
+void showCelsius(bool yes) {
+	if (yes == true) {
+		pixels.setPixelColor(60, redColor, greenColor, blueColor);
+	}
+	if (yes == false) {
+		pixels.setPixelColor(60, 0, 0, 0);
 	}
 }
 
@@ -248,7 +274,7 @@ void showDisplay(int number, bool showZero, bool blink) {
 }
 
 /*
- * convert time and convert it to dipslay
+ * Get time and convert it to dipslay
 */
 int convertTimeToDipslay() {
 	int time = 0;
@@ -264,7 +290,7 @@ int convertTimeToDipslay() {
 }
 
 /*
-* Convert date and convert it to dipslay
+* Get date and convert it to dipslay
 */
 int convertDateToDipslay() {
 	int date = 0;
@@ -279,23 +305,20 @@ int convertDateToDipslay() {
 	return date;
 }
 
-//todo zrobiæ
-void showMinus(bool yes) {
-	if (yes == true) {
-		pixels.setPixelColor(0, redColor, greenColor, blueColor);
+/*
+* Get temperature and convert it to dipslay
+*/
+int convertTempToDipslay() {
+	int temp = 0;
+	temp = actualTemp.toFloat() * 100.00;
+	showMinus(false);
+	if (temp < 0) {
+		showMinus(true);
 	}
-	if (yes == false) {
-		pixels.setPixelColor(0, 0, 0, 0);
-	}
-}
-
-void showCelsius(bool yes) {
-	if (yes == true) {
-		pixels.setPixelColor(60, redColor, greenColor, blueColor);
-	}
-	if (yes == false) {
-		pixels.setPixelColor(60, 0, 0, 0);
-	}
+	showCelsius(true);
+	showColon(false);
+	showDot(true);
+	return temp;
 }
 
 //todo komentarz
@@ -325,7 +348,7 @@ void setup()
 	//todo odczyt z pamiêci ram zegara przy starcie
 	days = 0;
 	//todo odczyt z pamiêci
-	actualMode = 1;
+	actualMode = 3;
 
 	// Set buttons mode
 	pinMode(plusButtonPin, INPUT_PULLUP);
@@ -346,6 +369,10 @@ void loop()
 	// read actual date and time
 	dateTime = clock.getDateTime();
 	clock.forceConversion();
+	actualTemp = clock.readTemperature();
+	
+
+	Serial.println(clock.readTemperature(), 2);
 
 	// check if 23:59 then increment days
 	if (clock.isAlarm2()) {
@@ -403,6 +430,11 @@ void loop()
 
 	// temp mode
 	case 3: {
+		if ((actualTemp != prevTemp) || (actualMode != prevMode)) {
+			prevTemp = actualTemp;
+			prevMode = actualMode;
+			display = convertTempToDipslay();
+		}
 		break;
 	}
 	
