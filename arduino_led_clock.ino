@@ -56,12 +56,24 @@ RTCDateTime dateTime;
 // days from last accident
 int days;
 
-// Actual mode
-int actualMode;
+/*
+ * Actual and prev mode
+ * 1 - time
+ * 2 - date
+ * 3 - temp
+ * 4 - days from accident
+*/
+int prevMode = 0;
+int actualMode = 1;
+
+// time help variables
+String prevTime = "";
+String prevDate = "";
+String actualTime = "";
+String actualDate = "";
 
 // number showed on display
 int display;
-
 
 /**
  * Show @char from @font array on selected @segment with selected color in @redColor, @greenColor and @blueColor
@@ -161,20 +173,24 @@ void testMode(int blinks) {
 	}
 }
 
-/**
-* Convert @number to single chars. If @showZero is true then all segments on begining is 0, else is blank.
-* Ex.
-* @showZero = true
-* @number = 99
-* EXIT => 0099
-*
-* @showZero = false
-* @number = 99
-* EXIT => __99 where _ is blank segment
-*
-*/
-void convertNumberToChars(int number, bool showZero) {
 
+//todo zrobiæ w convert opcje do wyboru w konfiguracji czy true czy false
+/**
+ * Convert @number to single chars. Then send it to segments.
+ * If @showZero is true then all segments on begining is 0, else is blank.
+ *
+ * Ex.
+ * @showZero = true
+ * @number = 99
+ * EXIT => 0099
+ *
+ * @showZero = false
+ * @number = 99
+ * EXIT => __99 where _ is blank segment
+ *
+*/
+void showDisplay(int number, bool showZero) {
+	
 	// number not between 0-9999
 	if (number < 0 || number > 9999) number = 0;
 
@@ -201,16 +217,20 @@ void convertNumberToChars(int number, bool showZero) {
 			}
 		}
 	}
-}
-
-//todo komentarz
-void showDisplay(int number, bool showZero) {
-	//todo zrobiæ w convert opcje do wyboru w konfiguracji czy true czy false
-	convertNumberToChars(number, showZero);
 	showCharOnSegment(char1, 1);
 	showCharOnSegment(char2, 2);
 	showCharOnSegment(char3, 3);
 	showCharOnSegment(char4, 4);
+}
+
+//todo komentarz
+int convertTimeToDipslay() {
+	int time = 0;
+	actualTime = clock.dateFormat("i", dateTime);
+	time = actualTime.toInt();
+	actualTime = clock.dateFormat("H", dateTime);
+	time = time + actualTime.toInt()*100;
+	return time;
 }
 
 //todo komentarz
@@ -244,6 +264,8 @@ void setup()
 void loop()
 {
 
+	
+
 	// read actual date and time
 	dateTime = clock.getDateTime();
 	Serial.println(clock.dateFormat("d-m-Y H:i:s - l", dateTime));
@@ -259,6 +281,13 @@ void loop()
 	{
 		// clock mode
 	case 1:
+		actualTime = clock.dateFormat("H:i", dateTime);
+		if ((actualTime != prevTime) || (actualMode != prevMode)) {
+			prevTime = actualTime;
+			prevMode = actualMode;
+			display = convertTimeToDipslay();
+			showColon(true);
+		}
 		break;
 		// days mode
 	case 2:
@@ -272,6 +301,10 @@ void loop()
 	showDisplay(display, true);
 	pixels.show();
 	delay(1000);
+
+	/*Serial.println(display);
+	Serial.println(actualMode);
+*/
 
 	
 
