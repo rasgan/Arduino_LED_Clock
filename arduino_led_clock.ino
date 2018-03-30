@@ -59,9 +59,9 @@ RTCDateTime dateTime;
  * int number Char in font array
  * int segment Selected segment
  */
-void showCharOnSegment(int8_t number, int8_t segment)
+void showCharOnSegment(int16_t number, int16_t segment)
 {
-    int8_t offset = 0;
+    int16_t offset = 0;
     switch (segment) {
     case 1:
         offset = 1;
@@ -77,10 +77,10 @@ void showCharOnSegment(int8_t number, int8_t segment)
         break;
     }
 
-    uint8_t line;
+    uint16_t line;
     line = font[number];
 
-    for (int8_t j = 0; j < 7; j++)
+    for (int16_t j = 0; j < 7; j++)
     {
         if (line & 0b1)
         {
