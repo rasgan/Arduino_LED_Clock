@@ -35,9 +35,9 @@ static const char font[] = {
 };
 
 // Buttons declaration
-const int plusButtonPin = 2;
-const int minusButtonPin = 3;
-const int modeButtonPin = 4;
+const int plusButtonPin = 7;
+const int minusButtonPin = 5;
+const int modeButtonPin = 6;
 
 Bounce bouncePlusButton = Bounce();
 Bounce bounceMinusButton = Bounce();
@@ -183,7 +183,6 @@ void testMode(int blinks) {
 	}
 }
 
-
 //todo zrobiæ w convert opcje do wyboru w konfiguracji czy true czy false
 /**
  * Convert @number to single chars. Then send it to segments.
@@ -291,6 +290,17 @@ void setup()
 	//todo odczyt z pamiêci
 	actualMode = 2;
 
+	// Set buttons mode
+	pinMode(plusButtonPin, INPUT_PULLUP);
+	pinMode(minusButtonPin, INPUT_PULLUP);
+	pinMode(modeButtonPin, INPUT_PULLUP);
+	bouncePlusButton.attach(plusButtonPin);
+	bouncePlusButton.interval(50);
+	bounceMinusButton.attach(minusButtonPin);
+	bounceMinusButton.interval(50);
+	bounceModeButton.attach(modeButtonPin);
+	bounceModeButton.interval(50);
+
 }
 
 //todo komentarz
@@ -300,8 +310,6 @@ void loop()
 	dateTime = clock.getDateTime();
 	clock.forceConversion();
 
-	Serial.println(clock.dateFormat("d-m-Y H:i:s - l", dateTime));
-
 	// check if 23:59 then increment days
 	if (clock.isAlarm2()) {
 		days++;
@@ -309,6 +317,19 @@ void loop()
 		//todo zapis dni do pamiêci
 	}
 
+	// update buttons
+	bouncePlusButton.update();
+	bounceMinusButton.update();
+	bounceModeButton.update();
+
+	// change actualMode
+	if (bounceModeButton.fell()) {
+		actualMode++;
+		// normal mode display
+		if (actualMode > 4 && actualMode < 99) actualMode = 1;
+	}
+	
+	// Show display selected by actualMode
 	switch (actualMode)
 	{
 		// clock mode
@@ -336,6 +357,11 @@ void loop()
 		}
 		break;
 	}
+
+	// temp mode
+	case 3: {
+		break;
+	}
 	
 	// cdays mode
 	case 4: {
@@ -352,7 +378,10 @@ void loop()
 	// show sended chars
 	showDisplay(display, true);
 	pixels.show();
-	delay(1000);
+
+	Serial.println(clock.dateFormat("d-m-Y H:i:s - l", dateTime));
+
+	
 
 	
 
