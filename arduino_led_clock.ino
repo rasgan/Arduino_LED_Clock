@@ -148,6 +148,47 @@ void testMode() {
 	}
 }
 
+/**
+* Convert @number to single chars. If @showZero is true then all segments on begining is 0, else is blank.
+* Ex.
+* @showZero = true
+* @number = 99
+* EXIT => 0099
+*
+* @showZero = false
+* @number = 99
+* EXIT => __99 where _ is blank segment
+*
+*/
+void convertNumberToChars(int number, bool showZero) {
+
+	// number not between 0-9999
+	if (number < 0 || number > 9999) number = 0;
+
+	// convert number to segment
+	char1 = number / 1000;
+	number = number % 1000;
+	char2 = number / 100;
+	number = number % 100;
+	char3 = number / 10;
+	char4 = number % 10;
+
+	// if not showZero then replace 0 on begining to blank segment
+	if (showZero == false) {
+		if (char1 == 0) {
+			char1 = 10;
+			if (char2 == 0) {
+				char2 = 10;
+				if (char3 == 0) {
+					char3 = 10;
+					if (char4 == 0) {
+						char4 = 10;
+					}
+				}
+			}
+		}
+	}
+}
 
 void setup()
 {
