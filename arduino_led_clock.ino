@@ -56,6 +56,13 @@ RTCDateTime dateTime;
 // days from last accident
 int days;
 
+// Actual mode
+int actualMode;
+
+// number showed on display
+int display;
+
+
 /**
  * Show @char from @font array on selected @segment with selected color in @redColor, @greenColor and @blueColor
  *
@@ -196,6 +203,17 @@ void convertNumberToChars(int number, bool showZero) {
 	}
 }
 
+//todo komentarz
+void showDisplay(int number, bool showZero) {
+	//todo zrobiæ w convert opcje do wyboru w konfiguracji czy true czy false
+	convertNumberToChars(number, showZero);
+	showCharOnSegment(char1, 1);
+	showCharOnSegment(char2, 2);
+	showCharOnSegment(char3, 3);
+	showCharOnSegment(char4, 4);
+}
+
+//todo komentarz
 void setup()
 {
 
@@ -217,9 +235,12 @@ void setup()
 
 	//todo odczyt z pamiêci ram zegara przy starcie
 	days = 0;
+	//todo odczyt z pamiêci
+	actualMode = 1;
 
 }
 
+//todo komentarz
 void loop()
 {
 
@@ -227,30 +248,35 @@ void loop()
 	dateTime = clock.getDateTime();
 	Serial.println(clock.dateFormat("d-m-Y H:i:s - l", dateTime));
 
-	//todo testy, reszta na alarmie 2
+	// check if 23:59 then increment days
 	if (clock.isAlarm2()) {
 		days++;
-		convertNumberToChars(days, true);
 		clock.clearAlarm2();
 		//todo zapis dni do pamiêci
 	}
 
-	Serial.println(days);
-	
-
-	convertNumberToChars(days, false);
-
-	showCharOnSegment(char1, 1);
-	showCharOnSegment(char2, 2);
-	showCharOnSegment(char3, 3);
-	showCharOnSegment(char4, 4);
+	switch (actualMode)
+	{
+		// clock mode
+	case 1:
+		break;
+		// days mode
+	case 2:
+		display = days;
+		break;
+	default:
+		break;
+	}
 
 	// show sended chars
+	showDisplay(display, true);
 	pixels.show();
 	delay(1000);
 
-	//todo kasowanie zegara
-	//todo ustawienie zegara na ileœ dni
+	
 
 
 }
+
+//todo kasowanie zegara
+//todo ustawienie zegara na ileœ dni
