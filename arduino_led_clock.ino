@@ -214,7 +214,6 @@ void testMode(int blinks) {
 	}
 }
 
-//todo zrobiæ w convert opcje do wyboru w konfiguracji czy true czy false
 /**
  * Convert @number to single chars. Then send it to segments.
  * If @showZero is true then all segments on begining is 0, else is blank.
@@ -321,7 +320,9 @@ int convertTempToDipslay() {
 	return temp;
 }
 
-//todo komentarz
+/*
+ * Setup
+*/
 void setup()
 {
 
@@ -340,14 +341,11 @@ void setup()
 	clock.setDateTime(__DATE__, __TIME__);
 
 	// set alarm to every 23:59:00
-	clock.setAlarm2(0, 23, 59, DS3231_MATCH_M);
+	clock.setAlarm2(0, 23, 59, DS3231_MATCH_H_M);
 	
-	//todo ustawienie na godzinê, a testy wy³¹czyæ
-	//clock.setAlarm1(0, 0, 0, 10, DS3231_MATCH_S); // ustawiona ka¿da 10 sekunda minuty do testów
-
-	//todo odczyt z pamiêci ram zegara przy starcie
+	//todo read from ds3231 clock memory on start
 	days = 0;
-	//todo odczyt z pamiêci
+	//todo read from ds3231 clock memory on start
 	actualMode = 3;
 
 	// Set buttons mode
@@ -363,7 +361,9 @@ void setup()
 
 }
 
-//todo komentarz
+/*
+ * Mian function
+*/
 void loop()
 {
 	// read actual date and time
@@ -378,7 +378,7 @@ void loop()
 	if (clock.isAlarm2()) {
 		days++;
 		clock.clearAlarm2();
-		//todo zapis dni do pamiêci
+		//todo save to ds3231 memory
 	}
 
 	// update buttons
@@ -481,14 +481,14 @@ void loop()
 		// back to display mode
 		if (bounceModeButton.fallingEdge()) {
 			actualMode = 4;
-			//todo zapis do pamiêci
+			isBlinking = false;
+			//todo save days to ds3231 memory
 		}
 	}
 
 	// dafault mode
 	default:
-		//todo odblokowaæ
-		//actualMode = 1;
+		actualMode = 1;
 		break;
 	}
 
@@ -506,13 +506,12 @@ void loop()
 
 }
 
-//todo kasowanie zegara
-//todo ustawienie zegara na ileœ dni
-//todo wyczyœciæ kod
-//todo dodaæ kolorki dni od iloœci do 9999
-//todo guziki po przek¹tnej
-//TODO zapisywanie ustawieñ do pamiêci
-//todo 24h/12h widok
-//todo dodaæ opcjê ustawiania kolorów dla zegara
-//todo dodaæ opcjê ustawiania kolorów dla daty
-//todo dodaæ opcjê ustawiania kolorów dla temp
+//todo reset days clock
+//todo clear code
+//todo add diff colors to every 10 days
+//todo modify mechanical project, buttons on down right
+//TODO save settings to memmory
+//todo add option to change collors on time
+//todo add option to change collors on date
+//todo add diff colors to temp
+//todo in config mode select option to show following zero or not @showDisplay
