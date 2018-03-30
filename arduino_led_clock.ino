@@ -124,6 +124,30 @@ void clearSegment(int8_t segment)
 	showCharOnSegment(10, segment);
 }
 
+/**
+* Test function - blink 5 time all pixels
+*/
+void testMode() {
+	for (int i = 0; i<5; i++) {
+		showCharOnSegment(8, 1);
+		showCharOnSegment(8, 2);
+		showCharOnSegment(8, 3);
+		showCharOnSegment(8, 4);
+		showColon(1);
+		showDot(1);
+		pixels.show();
+		delay(500);
+		clearSegment(1);
+		clearSegment(2);
+		clearSegment(3);
+		clearSegment(4);
+		showColon(0);
+		showDot(0);
+		pixels.show();
+		delay(500);
+	}
+}
+
 
 void setup()
 {
