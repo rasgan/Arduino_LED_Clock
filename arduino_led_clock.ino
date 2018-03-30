@@ -59,6 +59,9 @@ byte redColor = 200; // strip color red
 byte greenColor = 50; // strip color green
 byte blueColor = 120; // strip color blue
 
+// help variable isBlinking
+boolean isBlinking = false;
+
 // Time objects
 DS3231 clock;
 RTCDateTime dateTime;
@@ -187,6 +190,7 @@ void testMode(int blinks) {
 /**
  * Convert @number to single chars. Then send it to segments.
  * If @showZero is true then all segments on begining is 0, else is blank.
+ * If @blink is 1 then show digits, else digits are cleared
  *
  * Ex.
  * @showZero = true
@@ -198,7 +202,7 @@ void testMode(int blinks) {
  * EXIT => __99 where _ is blank segment
  *
 */
-void showDisplay(int number, bool showZero) {
+void showDisplay(int number, bool showZero, bool blink) {
 	
 	// number not between 0-9999
 	if (number < 0 || number > 9999) number = 0;
@@ -226,10 +230,19 @@ void showDisplay(int number, bool showZero) {
 			}
 		}
 	}
-	showCharOnSegment(char1, 1);
-	showCharOnSegment(char2, 2);
-	showCharOnSegment(char3, 3);
-	showCharOnSegment(char4, 4);
+	if (blink == 0) {
+		showCharOnSegment(char1, 1);
+		showCharOnSegment(char2, 2);
+		showCharOnSegment(char3, 3);
+		showCharOnSegment(char4, 4);
+	}
+	else {
+		clearSegment(1);
+		clearSegment(2);
+		clearSegment(3);
+		clearSegment(4);
+	}
+	
 }
 
 /*
@@ -288,7 +301,7 @@ void setup()
 	//todo odczyt z pamiêci ram zegara przy starcie
 	days = 0;
 	//todo odczyt z pamiêci
-	actualMode = 2;
+	actualMode = 1;
 
 	// Set buttons mode
 	pinMode(plusButtonPin, INPUT_PULLUP);
@@ -323,10 +336,16 @@ void loop()
 	bounceModeButton.update();
 
 	// change actualMode
-	if (bounceModeButton.fell()) {
+	if (bounceModeButton.risingEdge()) {
 		actualMode++;
 		// normal mode display
 		if (actualMode > 4 && actualMode < 99) actualMode = 1;
+	}
+
+	// enter the options mode
+	if (bounceModeButton.read() == LOW && bouncePlusButton.risingEdge()) {
+		actualMode = actualMode * 100;
+		if (actualMode > 1000) actualMode = 100;
 	}
 	
 	// Show display selected by actualMode
@@ -363,23 +382,62 @@ void loop()
 		break;
 	}
 	
-	// cdays mode
+	// days mode
 	case 4: {
 		display = days;
 		break;
 	}
 
+	// days options
+	case 400: {
+		display = days;
+		if (isBlinking == true) {
+			isBlinking = false;
+		}
+		else {
+			isBlinking = true;
+		}
+	}
+
+	// days options - change number of days
+	case 401: {
+		display = days;
+		if (isBlinking == true) {
+			isBlinking = false;
+		}
+		else {
+			isBlinking = true;
+		}
+		// increment days
+		if (bouncePlusButton.risingEdge()) {
+			days++;
+			if (days > 9999) days = 0;
+		}
+		// decrement days
+		if (bounceMinusButton.risingEdge()) {
+			days--;
+			if (days <0) days = 9999;
+		}
+		// back to display mode
+		if (bounceModeButton.fallingEdge()) {
+			actualMode = 4;
+			//todo zapis do pamiêci
+		}
+	}
+
 	// dafault mode
 	default:
-		actualMode = 1;
+		//todo odblokowaæ
+		//actualMode = 1;
 		break;
 	}
 
 	// show sended chars
-	showDisplay(display, true);
+	showDisplay(display, true, isBlinking);
 	pixels.show();
 
-	Serial.println(clock.dateFormat("d-m-Y H:i:s - l", dateTime));
+	//Serial.println(clock.dateFormat("d-m-Y H:i:s - l", dateTime));
+	Serial.println(actualMode);
 
 	
 
@@ -390,3 +448,6 @@ void loop()
 
 //todo kasowanie zegara
 //todo ustawienie zegara na ileœ dni
+//todo wyczyœciæ kod
+//todo dodaæ kolorki dni od iloœci do 9999
+//todo guziki po przek¹tnej
