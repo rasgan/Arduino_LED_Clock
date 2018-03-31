@@ -340,9 +340,6 @@ void setup()
 	clock.begin();
 	clock.setDateTime(__DATE__, __TIME__);
 
-	// set alarm to every 23:59:00
-	clock.setAlarm2(0, 23, 59, DS3231_MATCH_H_M);
-	
 	//todo read from ds3231 clock memory on start
 	days = 0;
 	//todo read from ds3231 clock memory on start
@@ -370,14 +367,10 @@ void loop()
 	dateTime = clock.getDateTime();
 	clock.forceConversion();
 	actualTemp = clock.readTemperature();
-	
-
-	Serial.println(clock.readTemperature(), 2);
 
 	// check if 23:59 then increment days
-	if (clock.isAlarm2()) {
+	if (clock.dateFormat("H:i", dateTime) == "23:59") {
 		days++;
-		clock.clearAlarm2();
 		//todo save to ds3231 memory
 	}
 
@@ -445,6 +438,9 @@ void loop()
 		showColon(false);
 		showDot(false);
 		showMinus(false);
+		if (bounceModeButton.read() == LOW && bounceMinusButton.read() == LOW) {
+			days = 0;
+		}
 		break;
 	}
 
@@ -488,7 +484,7 @@ void loop()
 
 	// dafault mode
 	default:
-		actualMode = 1;
+		//actualMode = 1; //fixme ??
 		break;
 	}
 
