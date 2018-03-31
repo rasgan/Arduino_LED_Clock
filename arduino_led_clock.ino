@@ -34,6 +34,64 @@ static const char font[] = {
 	0b0000000, //10 BLANK
 };
 
+/*
+ * Colors code to weeks
+ */
+static const byte colors[] = {
+	255,0,0,
+	255,6,0,
+	255,13,0,
+	255,21,0,
+	255,31,0,
+	255,41,0,
+	255,52,0,
+	255,64,0,
+	255,76,0,
+	255,89,0,
+	255,101,0,
+	255,114,0,
+	255,128,0,
+	255,141,0,
+	255,154,0,
+	255,167,0,
+	255,180,0,
+	255,193,0,
+	255,204,0,
+	255,215,0,
+	255,225,0,
+	255,234,0,
+	255,242,0,
+	255,250,0,
+	254,255,0,
+	249,255,0,
+	243,255,0,
+	236,255,0,
+	228,255,0,
+	219,255,0,
+	209,255,0,
+	200,255,0,
+	190,255,0,
+	179,255,0,
+	168,255,0,
+	156,255,0,
+	144,255,0,
+	134,255,0,
+	121,255,0,
+	109,255,0,
+	98,255,0,
+	87,255,0,
+	75,255,0,
+	65,255,0,
+	54,255,0,
+	45,255,0,
+	35,255,0,
+	27,255,0,
+	18,255,0,
+	12,255,0,
+	6,255,0,
+	0,255,0
+};
+
 // Buttons declaration
 const int plusButtonPin = 7;
 const int minusButtonPin = 5;
@@ -321,6 +379,18 @@ int convertTempToDipslay() {
 }
 
 /*
+ * Change color on every week
+ */
+void changeRGBColors() {
+	int color;
+	color = days / 7;
+	color = 3 * color;
+	redColor = colors[color];
+	greenColor = colors[color+1];
+	blueColor = colors[color+2];
+}
+
+/*
  * Setup
 */
 void setup()
@@ -373,6 +443,9 @@ void loop()
 		days++;
 		//todo save to ds3231 memory
 	}
+
+	//change RGB colors
+	changeRGBColors();
 
 	// update buttons
 	bouncePlusButton.update();
