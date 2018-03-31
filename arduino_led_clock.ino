@@ -564,20 +564,8 @@ void loop()
 	// show sended chars
 	showDisplay(display, true, isBlinking);
 	pixels.show();
-
-	//Serial.println(clock.dateFormat("d-m-Y H:i:s - l", dateTime));
-	Serial.println(actualMode);
-
-	
-
-	
-
-
 }
 
-//todo reset days clock
-//todo clear code
-//todo add diff colors to every 10 days
 //todo modify mechanical project, buttons on down right
 //TODO save settings to memmory
 //todo add option to change collors on time
