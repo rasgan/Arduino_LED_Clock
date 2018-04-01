@@ -401,6 +401,8 @@ void setup()
 	// ledStrip init
 	pixels.begin();
 	testMode(2);
+
+	// clear display
 	showCelsius(false);
 	showColon(false);
 	showDot(false);
@@ -408,12 +410,18 @@ void setup()
 
 	// Clock init
 	clock.begin();
-	clock.setDateTime(__DATE__, __TIME__);
+
+	// arm alarms to change days
+	clock.armAlarm1(false);
+	clock.armAlarm2(false);
+	clock.clearAlarm1();
+	clock.clearAlarm2();
+	clock.setAlarm2(0, 23, 59, DS3231_MATCH_H_M);
 
 	//todo read from ds3231 clock memory on start
 	days = 0;
 	//todo read from ds3231 clock memory on start
-	actualMode = 3;
+	actualMode = 1;
 
 	// Set buttons mode
 	pinMode(plusButtonPin, INPUT_PULLUP);
@@ -439,8 +447,9 @@ void loop()
 	actualTemp = clock.readTemperature();
 
 	// check if 23:59 then increment days
-	if (clock.dateFormat("H:i", dateTime) == "23:59") {
+	if (clock.isAlarm2()) {
 		days++;
+		clock.clearAlarm2();
 		//todo save to ds3231 memory
 	}
 
@@ -564,6 +573,11 @@ void loop()
 	// show sended chars
 	showDisplay(display, true, isBlinking);
 	pixels.show();
+
+
+	// DEBUGER
+	Serial.println("Actual time: " + actualTime);
+	Serial.println("Actual mode: " + actualMode);
 }
 
 //todo modify mechanical project, buttons on down right
