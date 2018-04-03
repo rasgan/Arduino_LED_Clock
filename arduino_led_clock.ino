@@ -474,15 +474,17 @@ void loop()
 
 	// change actualMode
 	if (bounceModeButton.risingEdge()) {
+		prevMode = actualMode;
 		actualMode++;
 		// normal mode display
 		if (actualMode > 4 && actualMode < 99) actualMode = 1;
 	}
 
 	// enter the options mode
-	if (bounceModeButton.read() == LOW && bouncePlusButton.fallingEdge()) {
+	if (bounceModeButton.read() == LOW && bouncePlusButton.risingEdge()) {
+		prevMode = actualMode;
 		actualMode = actualMode * 100;
-		if (actualMode > 1000) actualMode = 100;
+		if (actualMode > 500) actualMode = 1;
 	}
 	
 	// Show display selected by actualMode
@@ -509,6 +511,8 @@ void loop()
 			actualTime = clock.dateFormat("H", dateTime);
 			h1 = actualTime.toInt();
 
+			prevMode = actualMode;
+
 			actualTime = clock.dateFormat("H:i", dateTime);
 			if (isBlinking == true) {
 				isBlinking = false;
@@ -523,6 +527,8 @@ void loop()
 		case 101: {
 			display = h2;
 			showColon(true);
+
+			prevMode = actualMode;
 
 			if (isBlinking == true) {
 				isBlinking = false;
@@ -547,6 +553,8 @@ void loop()
 		case 102: {
 			display = h1 * 100;
 			showColon(true);
+
+			prevMode = actualMode;
 
 			if (isBlinking == true) {
 				isBlinking = false;
@@ -573,200 +581,221 @@ void loop()
 			String m = clock.dateFormat("m", dateTime);
 			String d = clock.dateFormat("d", dateTime);
 			clock.setDateTime(y.toInt(), m.toInt(), d.toInt(), h1, h2, 0);
+			prevMode = actualMode;
 			actualMode = 1;
 			isBlinking = false;
 			break;
 		}
 	
-	// date mode
-	case 2: {
-		// get actual time
-		actualDate = clock.dateFormat("m-d", dateTime);
-		// check is date or mode changed from last display
-		if ((actualDate != prevDate) || (actualMode != prevMode)) {
-			prevDate = actualDate;
+		// date mode
+		case 2: {
+			// get actual time
+			actualDate = clock.dateFormat("m-d", dateTime);
+			// check is date or mode changed from last display
+			if ((actualDate != prevDate) || (actualMode != prevMode)) {
+				prevDate = actualDate;
+				prevMode = actualMode;
+				display = convertDateToDipslay();
+			}
+			break;
+		}
+
+		case 200: {
+			// blink time
+			actualDate = clock.dateFormat("m", dateTime);
+			h1 = actualDate.toInt();
+			actualDate = clock.dateFormat("d", dateTime);
+			h2 = actualDate.toInt();
+			actualDate = clock.dateFormat("Y", dateTime);
+			h3 = actualDate.toInt();
+
 			prevMode = actualMode;
-			display = convertDateToDipslay();
-		}
-		break;
-	}
 
-	case 200: {
-		// blink time
-		actualDate = clock.dateFormat("m", dateTime);
-		h1 = actualDate.toInt();
-		actualDate = clock.dateFormat("d", dateTime);
-		h2 = actualDate.toInt();
-		actualDate = clock.dateFormat("Y", dateTime);
-		h3 = actualDate.toInt();
+			actualDate = clock.dateFormat("m-d", dateTime);
+			if (isBlinking == true) {
+				isBlinking = false;
+			}
+			else {
+				isBlinking = true;
+			}
+			break;
+		}
 
-		actualDate = clock.dateFormat("m-d", dateTime);
-		if (isBlinking == true) {
-			isBlinking = false;
-		}
-		else {
-			isBlinking = true;
-		}
-		break;
-	}
+		// set minuts and hours
+		case 201: {
+			display = h2*100;
+			showColon(false);
+			showDot(true);
 
-			  // set minuts and hours
-	case 201: {
-		display = h2*100;
-		showColon(false);
-		showDot(true);
-
-		if (isBlinking == true) {
-			isBlinking = false;
-		}
-		else {
-			isBlinking = true;
-		}
-		// increment minuts
-		if (bouncePlusButton.fallingEdge()) {
-			h2++;
-			if (h2 > 31) h2 = 00;
-		}
-		// decrement minuts
-		if (bounceMinusButton.fallingEdge()) {
-			h2--;
-			if (h2 < 1) h2 = 31;
-		}
-		break;
-	}
-
-	case 202: {
-		display = h1;
-		showColon(false);
-		showDot(true);
-
-		if (isBlinking == true) {
-			isBlinking = false;
-		}
-		else {
-			isBlinking = true;
-		}
-		// increment minuts
-		if (bouncePlusButton.fallingEdge()) {
-			h1++;
-			if (h1 > 12) h1 = 1;
-		}
-		// decrement days
-		if (bounceMinusButton.fallingEdge()) {
-			h1--;
-			if (h1 < 1) h1 = 12;
-		}
-		break;
-
-	}
-
-	case 203: {
-		display = h3;
-		showColon(false);
-		showDot(false);
-
-		if (isBlinking == true) {
-			isBlinking = false;
-		}
-		else {
-			isBlinking = true;
-		}
-		// increment minuts
-		if (bouncePlusButton.fallingEdge()) {
-			h3++;
-			if (h3 > 2099) h3 = 2000;
-		}
-		// decrement days
-		if (bounceMinusButton.fallingEdge()) {
-			h3--;
-			if (h3 < 2000) h3 = 2099;
-		}
-		break;
-
-	}
-
-	case 204: {
-		String h = clock.dateFormat("H", dateTime);
-		String i = clock.dateFormat("i", dateTime);
-		clock.setDateTime(h3, h1, h2, h.toInt() , i.toInt(), 0);
-		actualMode = 2;
-		isBlinking = false;
-		break;
-	}
-
-	// temp mode
-	case 3: {
-		if ((actualTemp != prevTemp) || (actualMode != prevMode)) {
-			prevTemp = actualTemp;
 			prevMode = actualMode;
-			display = convertTempToDipslay();
-		}
-		break;
-	}
 
-	case 300: {
-		actualMode=401;
-		break;
-	}
+			if (isBlinking == true) {
+				isBlinking = false;
+			}
+			else {
+				isBlinking = true;
+			}
+			// increment minuts
+			if (bouncePlusButton.fallingEdge()) {
+				h2++;
+				if (h2 > 31) h2 = 00;
+			}
+			// decrement minuts
+			if (bounceMinusButton.fallingEdge()) {
+				h2--;
+				if (h2 < 1) h2 = 31;
+			}
+			break;
+		}
+
+		case 202: {
+			display = h1;
+			showColon(false);
+			showDot(true);
+
+			prevMode = actualMode;
+
+			if (isBlinking == true) {
+				isBlinking = false;
+			}
+			else {
+				isBlinking = true;
+			}
+			// increment minuts
+			if (bouncePlusButton.fallingEdge()) {
+				h1++;
+				if (h1 > 12) h1 = 1;
+			}
+			// decrement days
+			if (bounceMinusButton.fallingEdge()) {
+				h1--;
+				if (h1 < 1) h1 = 12;
+			}
+			break;
+
+		}
+
+		case 203: {
+			display = h3;
+			showColon(false);
+			showDot(false);
+
+			prevMode = actualMode;
+
+			if (isBlinking == true) {
+				isBlinking = false;
+			}
+			else {
+				isBlinking = true;
+			}
+			// increment minuts
+			if (bouncePlusButton.fallingEdge()) {
+				h3++;
+				if (h3 > 2099) h3 = 2000;
+			}
+			// decrement days
+			if (bounceMinusButton.fallingEdge()) {
+				h3--;
+				if (h3 < 2000) h3 = 2099;
+			}
+			break;
+
+		}
+
+		case 204: {
+			String h = clock.dateFormat("H", dateTime);
+			String i = clock.dateFormat("i", dateTime);
+			clock.setDateTime(h3, h1, h2, h.toInt() , i.toInt(), 0);
+			prevMode = actualMode;
+			actualMode = 2;
+			isBlinking = false;
+			break;
+		}
+
+		// temp mode
+		case 3: {
+			if ((actualTemp != prevTemp) || (actualMode != prevMode)) {
+				prevTemp = actualTemp;
+				prevMode = actualMode;
+				display = convertTempToDipslay();
+			}
+			break;
+		}
+
+		case 300: {
+			prevMode = actualMode;
+			actualMode=401;
+			break;
+		}
 	
-	// days mode
-	case 4: {
-		display = days;
-		showCelsius(false);
-		showColon(false);
-		showDot(false);
-		showMinus(false);
-		if (bounceModeButton.read() == LOW && bounceMinusButton.read() == LOW) {
-			days = 0;
+		// days mode
+		case 4: {
+			display = days;
+			showCelsius(false);
+			showColon(false);
+			showDot(false);
+			showMinus(false);
+
+			prevMode = actualMode;
+
+			if (bounceModeButton.read() == LOW && bounceMinusButton.read() == LOW) {
+				days = 0;
+				EEPROM.write(200, days);
+			}
+			break;
+		}
+
+		// days options
+		case 400: {
+			display = days;
+			prevMode = actualMode;
+			if (isBlinking == true) {
+				isBlinking = false;
+			}
+			else {
+				isBlinking = true;
+			}
+			break;
+		}
+
+		// days options - change number of days
+		case 401: {
+			display = days;
+			prevMode = actualMode;
+			if (isBlinking == true) {
+				isBlinking = false;
+			}
+			else {
+				isBlinking = true;
+			}
+			// increment days
+			if (bouncePlusButton.risingEdge()) {
+				days++;
+				if (days > 9999) days = 0;
+			}
+			// decrement days
+			if (bounceMinusButton.risingEdge()) {
+				days--;
+				if (days <0) days = 9999;
+			}
+			break;
+		}
+
+		case 402: {
 			EEPROM.write(200, days);
-		}
-		break;
-	}
-
-	// days options
-	case 400: {
-		display = days;
-		if (isBlinking == true) {
+			prevMode = actualMode;
+			actualMode = 4;
 			isBlinking = false;
+			break;
 		}
-		else {
-			isBlinking = true;
-		}
-	}
-
-	// days options - change number of days
-	case 401: {
-		display = days;
-		if (isBlinking == true) {
-			isBlinking = false;
-		}
-		else {
-			isBlinking = true;
-		}
-		// increment days
-		if (bouncePlusButton.risingEdge()) {
-			days++;
-			if (days > 9999) days = 0;
-		}
-		// decrement days
-		if (bounceMinusButton.risingEdge()) {
-			days--;
-			if (days <0) days = 9999;
-		}
-	}
-
-	case 402: {
-		EEPROM.write(200, days);
-		actualMode = 4;
-		isBlinking = false;
-		break;
-	}
 
 
-	// dafault mode
-	default:
-		//actualMode = 1; //fixme ??
-		break;
+		// dafault mode
+		default: {
+			//actualMode = 1; //fixme ??
+			break;
+		}
+			
 	}
 
 	// show sended chars
@@ -776,8 +805,7 @@ void loop()
 
 	// DEBUGER
 	Serial.println(actualMode);
-	Serial.println(actualDate);
-	//Serial.println(clock.dateFormat("Y", dateTime));
+	Serial.println(clock.dateFormat("H:i:s Y-m-d", dateTime));
 	//Serial.println(days);
 }
 
