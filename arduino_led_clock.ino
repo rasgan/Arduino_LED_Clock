@@ -146,6 +146,9 @@ String actualTime = "";
 String actualDate = "";
 String actualTemp = "";
 
+// help variables to set time and date
+int h1, h2, h3;
+
 // number showed on display
 int display;
 
@@ -424,7 +427,6 @@ void setup()
 	clock.clearAlarm1();
 	clock.clearAlarm2();
 	clock.setAlarm2(0, 23, 59, DS3231_MATCH_H_M);
-	//clock.setAlarm1(0, 0, 0, 1, DS3231_MATCH_S);
 
 	//todo read from ds3231 clock memory on start
 	days = 0;
@@ -437,11 +439,11 @@ void setup()
 	pinMode(minusButtonPin, INPUT_PULLUP);
 	pinMode(modeButtonPin, INPUT_PULLUP);
 	bouncePlusButton.attach(plusButtonPin);
-	bouncePlusButton.interval(50);
+	bouncePlusButton.interval(25);
 	bounceMinusButton.attach(minusButtonPin);
-	bounceMinusButton.interval(50);
+	bounceMinusButton.interval(25);
 	bounceModeButton.attach(modeButtonPin);
-	bounceModeButton.interval(50);
+	bounceModeButton.interval(25);
 
 }
 
@@ -478,7 +480,7 @@ void loop()
 	}
 
 	// enter the options mode
-	if (bounceModeButton.read() == LOW && bouncePlusButton.risingEdge()) {
+	if (bounceModeButton.read() == LOW && bouncePlusButton.fallingEdge()) {
 		actualMode = actualMode * 100;
 		if (actualMode > 1000) actualMode = 100;
 	}
@@ -487,17 +489,94 @@ void loop()
 	switch (actualMode)
 	{
 		// clock mode
-	case 1: {
-		// get actual time
-		actualTime = clock.dateFormat("H:i", dateTime);
-		// check is time or mode changed from last display
-		if ((actualTime != prevTime) || (actualMode != prevMode)) {
-			prevTime = actualTime;
-			prevMode = actualMode;
-			display = convertTimeToDipslay();
+		case 1: {
+			// get actual time
+			actualTime = clock.dateFormat("H:i", dateTime);
+			// check is time or mode changed from last display
+			if ((actualTime != prevTime) || (actualMode != prevMode)) {
+				prevTime = actualTime;
+				prevMode = actualMode;
+				display = convertTimeToDipslay();
+			}
+			break; 
 		}
-		break; 
-	}
+		
+		// clock set mode
+		case 100: {
+			// blink time
+			actualTime = clock.dateFormat("i", dateTime);
+			h2 = actualTime.toInt();
+			actualTime = clock.dateFormat("H", dateTime);
+			h1 = actualTime.toInt();
+
+			actualTime = clock.dateFormat("H:i", dateTime);
+			if (isBlinking == true) {
+				isBlinking = false;
+			}
+			else {
+				isBlinking = true;
+			}
+			break;
+		}
+
+		// set minuts
+		case 101: {
+			display = h2;
+			showColon(true);
+
+			if (isBlinking == true) {
+				isBlinking = false;
+			}
+			else {
+				isBlinking = true;
+			}
+			// increment minuts
+			if (bouncePlusButton.fallingEdge()) {
+				h2++;
+				if (h2 > 59) h2 = 00;
+			}
+			// decrement minuts
+			if (bounceMinusButton.fallingEdge()) {
+				h2--;
+				if (h2 < 0) h2 = 59;
+			}
+			break;
+		}
+
+		// set hours
+		case 102: {
+			display = h1 * 100;
+			showColon(true);
+
+			if (isBlinking == true) {
+				isBlinking = false;
+			}
+			else {
+				isBlinking = true;
+			}
+			// increment minuts
+			if (bouncePlusButton.fallingEdge()) {
+				h1++;
+				if (h1 > 23) h1 = 00;
+			}
+			// decrement days
+			if (bounceMinusButton.fallingEdge()) {
+				h1--;
+				if (h1 < 0) h1 = 23;
+			}
+			break;
+		}
+
+		// save settings
+		case 103: {
+			String y = clock.dateFormat("Y", dateTime);
+			String m = clock.dateFormat("m", dateTime);
+			String d = clock.dateFormat("d", dateTime);
+			clock.setDateTime(y.toInt(), m.toInt(), d.toInt(), h1, h2, 0);
+			actualMode = 1;
+			isBlinking = false;
+			break;
+		}
 	
 	// date mode
 	case 2: {
@@ -512,6 +591,109 @@ void loop()
 		break;
 	}
 
+	case 200: {
+		// blink time
+		actualDate = clock.dateFormat("m", dateTime);
+		h1 = actualDate.toInt();
+		actualDate = clock.dateFormat("d", dateTime);
+		h2 = actualDate.toInt();
+		actualDate = clock.dateFormat("Y", dateTime);
+		h3 = actualDate.toInt();
+
+		actualDate = clock.dateFormat("m-d", dateTime);
+		if (isBlinking == true) {
+			isBlinking = false;
+		}
+		else {
+			isBlinking = true;
+		}
+		break;
+	}
+
+			  // set minuts and hours
+	case 201: {
+		display = h2*100;
+		showColon(false);
+		showDot(true);
+
+		if (isBlinking == true) {
+			isBlinking = false;
+		}
+		else {
+			isBlinking = true;
+		}
+		// increment minuts
+		if (bouncePlusButton.fallingEdge()) {
+			h2++;
+			if (h2 > 31) h2 = 00;
+		}
+		// decrement minuts
+		if (bounceMinusButton.fallingEdge()) {
+			h2--;
+			if (h2 < 1) h2 = 31;
+		}
+		break;
+	}
+
+	case 202: {
+		display = h1;
+		showColon(false);
+		showDot(true);
+
+		if (isBlinking == true) {
+			isBlinking = false;
+		}
+		else {
+			isBlinking = true;
+		}
+		// increment minuts
+		if (bouncePlusButton.fallingEdge()) {
+			h1++;
+			if (h1 > 12) h1 = 1;
+		}
+		// decrement days
+		if (bounceMinusButton.fallingEdge()) {
+			h1--;
+			if (h1 < 1) h1 = 12;
+		}
+		break;
+
+	}
+
+	case 203: {
+		display = h3;
+		showColon(false);
+		showDot(false);
+
+		if (isBlinking == true) {
+			isBlinking = false;
+		}
+		else {
+			isBlinking = true;
+		}
+		// increment minuts
+		if (bouncePlusButton.fallingEdge()) {
+			h3++;
+			if (h3 > 2099) h3 = 2000;
+		}
+		// decrement days
+		if (bounceMinusButton.fallingEdge()) {
+			h3--;
+			if (h3 < 2000) h3 = 2099;
+		}
+		break;
+
+	}
+
+	case 204: {
+		String h = clock.dateFormat("H", dateTime);
+		String i = clock.dateFormat("i", dateTime);
+		clock.setDateTime(h3, h1, h2, h.toInt() , i.toInt(), 0);
+		actualMode = 2;
+		isBlinking = false;
+		break;
+	}
+
 	// temp mode
 	case 3: {
 		if ((actualTemp != prevTemp) || (actualMode != prevMode)) {
@@ -519,6 +701,11 @@ void loop()
 			prevMode = actualMode;
 			display = convertTempToDipslay();
 		}
+		break;
+	}
+
+	case 300: {
+		actualMode=401;
 		break;
 	}
 	
@@ -531,6 +718,7 @@ void loop()
 		showMinus(false);
 		if (bounceModeButton.read() == LOW && bounceMinusButton.read() == LOW) {
 			days = 0;
+			EEPROM.write(200, days);
 		}
 		break;
 	}
@@ -565,13 +753,15 @@ void loop()
 			days--;
 			if (days <0) days = 9999;
 		}
-		// back to display mode
-		if (bounceModeButton.fallingEdge()) {
-			EEPROM.write(200, days);
-			actualMode = 4;
-			isBlinking = false;
-		}
 	}
+
+	case 402: {
+		EEPROM.write(200, days);
+		actualMode = 4;
+		isBlinking = false;
+		break;
+	}
+
 
 	// dafault mode
 	default:
@@ -585,16 +775,17 @@ void loop()
 
 
 	// DEBUGER
-	/*Serial.println(actualMode);
-	Serial.println(actualTime);
-	Serial.println(days);*/
+	Serial.println(actualMode);
+	Serial.println(actualDate);
+	//Serial.println(clock.dateFormat("Y", dateTime));
+	//Serial.println(days);
 }
 
-//todo modify mechanical project, buttons on down right
-//TODO save settings to memmory
-//todo add option to change collors on time
-//todo add option to change collors on date
-//todo add diff colors to temp
-//todo add blink diode
-//todo in config mode select option to show following zero or not @showDisplay
-//todo set hour and date
+//todo v2 modify mechanical project, buttons on down right
+//todo v2 add option to change collors on time
+//todo v2 add option to change collors on date
+//todo v2 add diff colors to temp
+//todo v2 in config mode select option to show following zero or not @showDisplay
+//todo v2 save settings to memmory
+//todo v2 betterset hour and date
+//todo clear and comment code
