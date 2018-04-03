@@ -2,6 +2,7 @@
 #include <Wire.h>
 #include <DS3231.h>
 #include <Bounce2.h>
+#include <EEPROM.h>
 
 /*
 * Define font array
@@ -383,7 +384,12 @@ int convertTempToDipslay() {
  */
 void changeRGBColors() {
 	int color;
-	color = days / 7;
+	if (days > 356) {
+		color = 51;
+	}
+	else {
+		color = days / 7;
+	}
 	color = 3 * color;
 	redColor = colors[color];
 	greenColor = colors[color+1];
@@ -410,6 +416,7 @@ void setup()
 
 	// Clock init
 	clock.begin();
+	//clock.setDateTime(__DATE__, __TIME__);
 
 	// arm alarms to change days
 	clock.armAlarm1(false);
@@ -417,11 +424,13 @@ void setup()
 	clock.clearAlarm1();
 	clock.clearAlarm2();
 	clock.setAlarm2(0, 23, 59, DS3231_MATCH_H_M);
+	//clock.setAlarm1(0, 0, 0, 1, DS3231_MATCH_S);
 
 	//todo read from ds3231 clock memory on start
 	days = 0;
+	days = EEPROM.read(200);
 	//todo read from ds3231 clock memory on start
-	actualMode = 1;
+	actualMode = 1;	
 
 	// Set buttons mode
 	pinMode(plusButtonPin, INPUT_PULLUP);
@@ -450,7 +459,7 @@ void loop()
 	if (clock.isAlarm2()) {
 		days++;
 		clock.clearAlarm2();
-		//todo save to ds3231 memory
+		EEPROM.write(200, days);
 	}
 
 	//change RGB colors
@@ -558,9 +567,9 @@ void loop()
 		}
 		// back to display mode
 		if (bounceModeButton.fallingEdge()) {
+			EEPROM.write(200, days);
 			actualMode = 4;
 			isBlinking = false;
-			//todo save days to ds3231 memory
 		}
 	}
 
@@ -576,8 +585,9 @@ void loop()
 
 
 	// DEBUGER
-	Serial.println("Actual time: " + actualTime);
-	Serial.println("Actual mode: " + actualMode);
+	/*Serial.println(actualMode);
+	Serial.println(actualTime);
+	Serial.println(days);*/
 }
 
 //todo modify mechanical project, buttons on down right
@@ -585,4 +595,6 @@ void loop()
 //todo add option to change collors on time
 //todo add option to change collors on date
 //todo add diff colors to temp
+//todo add blink diode
 //todo in config mode select option to show following zero or not @showDisplay
+//todo set hour and date
