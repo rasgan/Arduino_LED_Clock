@@ -94,9 +94,9 @@ static const byte colors[] = {
 };
 
 // Buttons declaration
-const int plusButtonPin = 7;
-const int minusButtonPin = 5;
-const int modeButtonPin = 6;
+const int plusButtonPin = 6;
+const int minusButtonPin = 7;
+const int modeButtonPin = 8;
 
 Bounce bouncePlusButton = Bounce();
 Bounce bounceMinusButton = Bounce();
@@ -109,7 +109,7 @@ int char3 = 8;
 int char4 = 8;
 
 // LED Strip object definition
-const int ledStripPin = 12; // pin in arduino
+const int ledStripPin = 5; // pin in arduino
 const int ledsInStrip = 62; // leds in strip
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(ledsInStrip, ledStripPin, NEO_GRB + NEO_KHZ800); // strip object
 
@@ -416,7 +416,7 @@ void setup()
 	showColon(false);
 	showDot(false);
 	showMinus(false);
-
+	Serial.println("przed");
 	// Clock init
 	clock.begin();
 	//clock.setDateTime(__DATE__, __TIME__);
